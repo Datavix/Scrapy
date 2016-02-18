@@ -43,7 +43,8 @@ class ErshoufangSpider(scrapy.Spider):
         # Write each home url responses into a html file f0r backup purpose
         filename = os.path.join(self.output_filename, response.url.split("/")[-1])
         with open(filename, 'wb') as f:
-            f.write(response.body)
+            pass
+            #f.write(response.body)
 
         # Retrieve each keyword information into item object
         item = ErshoufangItem()
