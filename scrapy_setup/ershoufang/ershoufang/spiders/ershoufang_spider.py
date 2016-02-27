@@ -19,7 +19,7 @@ class ErshoufangSpider(scrapy.Spider):
     # Output folder
     output_folder = "/home/zc/Software/scrapy/"
     input_filename = output_folder + "soufang/soufang/link/home.html"
-    output_filename = "/media/zc/Entertainment/ershoufang/"
+    # output_filename = "/media/zc/Entertainment/ershoufang/"
 
     # Json file stores all the keywords mapping
     json_file = output_folder + "ershoufang/ershoufang/result/result.jl"
@@ -29,8 +29,8 @@ class ErshoufangSpider(scrapy.Spider):
     update_time = '//div[@class="product_name"]/p/text()'
     price = '//div[@class="detail_msg"]/ul/li/span[@class="price"]/text()'
     average_price = '//div[@class="detail_msg"]/ul/li/font/text()'
-    houseDesign_size_orientation_floor = '//div[@class="detail_msg"]/ul/li[@class="margin1"]/span[@class="width2"]/span[@class="black"]/text()'
-    propertyManagement_year = '//div[@class="detail_msg"]/ul/li[@class="margin"]/span[@class="width2"]/span[@class="black"]/text()'
+    houseDesign_size_orientation_floor = '//div[@class="detail_msg"]/ul/li[@class="margin1"]/span[@class="width2"]/text()'
+    propertyManagement_year = '//div[@class="detail_msg"]/ul/li[@class="margin"]/span[@class="width2"]/text()'
     location_facilities = '//div[@class="detail_msg"]/ul/li[@class="width3 margin1"]/span[@class="content"]/text()'
     traffic = '//div[@class="detail_msg"]/ul/li[@class="width3 margin"]/span[@class="content"]/text()'
     phone = '//div[@class="detail_msg"]/ul/li/span[@class="phone width"]/text()'
@@ -41,9 +41,9 @@ class ErshoufangSpider(scrapy.Spider):
 
     def parse(self, response):
         # Write each home url responses into a html file f0r backup purpose
-        filename = os.path.join(self.output_filename, response.url.split("/")[-1])
-        with open(filename, 'wb') as f:
-            f.write(response.body)
+        # filename = os.path.join(self.output_filename, response.url.split("/")[-1])
+        # with open(filename, 'wb') as f:
+            # f.write(response.body)
 
         # Retrieve each keyword information into item object
         item = ErshoufangItem()
