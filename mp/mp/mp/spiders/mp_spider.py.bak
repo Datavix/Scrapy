@@ -1,0 +1,52 @@
+
+import scrapy
+from scrapy.http import Request
+from mp.items import MpItem
+import json
+import string
+import datetime
+import re
+
+from sets import Set
+
+class MpSpider(scrapy.Spider):
+    name = "mp"
+    allowed_domains = ["www.meipai.com"]
+    start_urls = ["http://www.meipai.com/media/571939984"]
+    base_url = "http://www.meipai.com"
+
+    # Output folder 
+    output_folder = "/home/datavix/project/mp/result/"
+
+    # Json file stores all the keywords mapping
+    json_file = output_folder + datetime.datetime.now().strftime ("%Y%m%d") + "_mp_result.jl"
+    openFile = open(json_file, 'w')
+    link_pool = set()
+
+    def replaceStr(self, inputStr):
+        inputStr = re.sub(r'\n', ' ', str(inputStr))
+        inputStr = inputStr.replace("\\n", "")
+        inputStr = inputStr.replace("  ", "")
+        inputStr = inputStr.replace("[u'", "")
+        inputStr = inputStr.replace("']", "")
+        return inputStr
+
+    # Callback funtion, retrieve http response
+    def parse(self, response):
+        item = MpItem()
+	title = response.xpath('//h1[@class="detail-description break js-convert-emoji"]/text()').extract()
+	if len(title) > 0:
+		item['title'] = title[len(title) - 1]
+		item['url'] = response.url
+		links = response.xpath('//li[@class="detail-li pr"]/a/@href').extract()
+		#if len(links) == 0:
+		#    links = response.xpath('//li[@class="detail-li pr"]/p[@class="detail-li-des pa"]/a/@href').extract()
+		for link in links:
+		    if link not in self.link_pool:
+			self.link_pool.add(link)
+			link = self.base_url + link
+			yield Request(url=link, callback=self.parse)
+
+		# Dump the data into json format
+		line = json.dumps(dict(item)) + "\n"
+		self.openFile.write(line)
