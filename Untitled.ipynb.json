@@ -1,0 +1,255 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "import jieba\n",
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import json"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [],
+   "source": [
+    "with open('/Users/ChaoTong/Desktop/20160823_mp_result_utf8.json') as f:\n",
+    "    data = pd.DataFrame(json.loads(line, strict=False) for line in f)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0                             [源源,  表演奥运会项目,真的是惟妙惟肖！机智源！]\n",
+       "1                                 [因为有源,我们相遇！我们是幸福的四叶草~ ]\n",
+       "2                         [有一种男神 舞姿那么优雅,那么帅气他就是王源！为他尖叫吧~]\n",
+       "3       [wuli王源爱你就是和你吃很多很多顿饭,  饭制by,  8月21日17：00美拍直播见~~~]\n",
+       "4       [素生烟 白玉洁白炊绿染,与叶相知相称之。花心如貌娇羞化,花蕊若面亦相魅。,  http:/...\n",
+       "5       [最近莫名唱了很多五月天的歌 我还想唱五月天的派对动物哈哈哈哈 周杰伦的新专辑也都特别好听！...\n",
+       "6                           [自爆丑照,希望大家给我支持,一起两周飞速瘦！不要掉粉～]\n",
+       "7                                 [一个严重闷热夏天的晚上！微博：@摄影师一酩]\n",
+       "8                                            [皇家量子邮轮记第一天]\n",
+       "9                                 [[奥运+油]女排精神：唯有拼搏,方能致远！]\n",
+       "10                              [开启吓退吃瓜群众 , 无压力大口挑战全场惊呆 ]\n",
+       "11                                                     []\n",
+       "12      [我爱的古风歌曲合集~都有写歌名哦,自己看吧,衔接可能不太好,因为没那么严谨,但是大家知道就...\n",
+       "13      [《自拍守则之视频app》推荐一些跟视频有关的app,分别是视频剪辑的Cute Cut Pr...\n",
+       "14      [樱花果冻与特饮,与水果茶的完美搭配~白凉粉原本就没什么味道,但是和酸甜的水果茶融合,味道不...\n",
+       "15      [醉红楼 惊艳一舞动京城,佳人寻梦远走去。一路坎坷花香过,途中偶遇鸳鸯对。相视一笑很倾城,一...\n",
+       "16      [铃巧奏 红梅季节初相遇,你我皆为初次见。你来我往感情深,有事相说仗义行。一言一语相应知,一...\n",
+       "17      [我就不多解释了 真的是特别特别羞涩 特别特别直 群号:535818853 微博:Skm破音...\n",
+       "18                             [好久不见～我在想做化妆品和女装,你们会支持哪个？]\n",
+       "19                       [喜欢老家宁静的后院,也喜欢爱恨交织的东京！ 新浪微博：周酩酩]\n",
+       "20                 [一段14年拍的视频,曲目是beyond 96年演唱会《love》的尾奏！]\n",
+       "21      [君生我未生 纯白如洁皎月映,红装如画影窗前。一抹相知钟情见,白莲飘荡满园香。少女倩影白装盛...\n",
+       "22                                               [突然就拍了！]\n",
+       "23                                              [放完屁屁叫爸爸]\n",
+       "24                                          [ 沉迷于放屁屁的小柚子]\n",
+       "25      [今天登小咖秀居然发现这么一段视频要纪念一下,曾经有一度很神经质！这身装备在这个季节看起来是...\n",
+       "26                                    [《酒僧》混搭京剧开唱 独特唱腔玩转]\n",
+       "27                       [放回忆杀嗨唱《Butter-fly》 甜蜜嗓音勾起童年记忆 ]\n",
+       "28                                           [出发！gogogo～]\n",
+       "29                                                     []\n",
+       "                              ...                        \n",
+       "7721    [美拍, 爆红全网！高颜值+大长腿的组合,实在是太养眼啦！看完忍不住想舔屏！快加话题, ,来...\n",
+       "7722    [美拍极限运动达人,  是一名中国爬楼党,在她眼中没有什么能比爬楼更爽的事了,高空俯瞰每个城...\n",
+       "7723    [美拍, 风靡全网,超逆天化妆术！！！ 习惯了减龄妆,一起来尝试下不一样的变老妆！！！ 带你...\n",
+       "7724    [美拍, 合集来啦！相信大家这几天都被傅园慧的逗比性格和魔性表情给圈粉了！奥运届一股行走的泥...\n",
+       "7725    [美拍, 小合集,经过美容师的改造,宠物们都改头换面,实在太可爱啦！！简直萌出血！！被萌到的...\n",
+       "7726    [美拍, 风靡全网,网友们都彻底玩疯了！到哪都在扔水瓶！看完心动了吗？快快拍摄视频,加话题,...\n",
+       "7727    [美拍, 合集来啦！实在是太好笑了！看到最后,你们一定会转发的,相信我！！快叫上小伙伴一起来...\n",
+       "7728                                         [我学生清唱《小幸运》]\n",
+       "7729    [第一次录制这样的教学视频！我就是一个电脑网络方面的菜鸟,希望粉粉们多多指教！英语方面,也希...\n",
+       "7730    [自学的~粤语歌！ps：我们这里都是说潮汕话！普通话,粤语,英语,都是得后天自己学习的~！少...\n",
+       "7731                                            [《心中的日月》]\n",
+       "7732                               [太空步！纪念伟大的“迈克尔杰克逊”,  ]\n",
+       "7733              [纯属娱乐！目测各路武术界“大神”即将隆重登场…然后给出“专业点评”…,  ]\n",
+       "7734    [《咱们结婚吧》接下来要中考了,得去别的学校监考三天,加上周末！连续放假5天~！可能得一段时...\n",
+       "7735                                               [爆照~ ]\n",
+       "7736    [再阳光的心是否偶尔也会有阴暗面？？平时很阳光,开朗,看似总能给别人带来正能量！可是有时却感...\n",
+       "7737    [星座书上~说我们不合,狮子座的我配不上你的好~难过后想想也许只是碰巧,我们的故事写书人怎明了？]\n",
+       "7738                                        [潮剧！只有潮汕人懂得！]\n",
+       "7739    [英文版《IF YOU》第二段！！！感谢真爱粉！The sun goes down did ...\n",
+       "7740    [《IF YOU》-Bigbang ,  ,  感谢每一位点赞的粉粉们…期待能为你们继续翻唱...\n",
+       "7741    [英文版《红豆》 红豆生南国,春来发几枝。 愿君多采撷,此物最相思。 仅以此歌,送给某个江苏...\n",
+       "7742                           [仅以此视频,献给那些在一路拼搏奋斗的人们！加油！]\n",
+       "7743                              [那封面太美,我不敢看！请暂时忘记我的身份…]\n",
+       "7744                              [舞蹈就是要这样的随时随地,舞法舞天,  ！]\n",
+       "7745    [百潭谷！纯天然泉水池！哈哈,我游得最快…！这是最下面的一个潭,上面还有好几个…,泉水非常的...\n",
+       "7746                                [讲课不容易,给个“赞”吧…！评论+转发]\n",
+       "7747                [英文版《有何不可》~许嵩...我叫树嵩,我爱许嵩,松鼠 松鼠 在哪里？]\n",
+       "7748                                            [人多欺负人少 ]\n",
+       "7749    [在这里,我要感谢一直以来帮我后期提取和制作视频的朋友,“夏婷”童鞋！Many thanks...\n",
+       "7750    [课后录制的…木有学生~！快开学了,又可以和学生们在一起了……暑假太空虚无聊！有学生们吵闹嘻...\n",
+       "Name: title, dtype: object"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "[\"源源,  表演奥运会项目,真的是惟妙惟肖！机智源！\" , \"因为有源,我们相遇！我们是幸福的四叶草~\", ]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "seg_list = jieba.cut('/Users/ChaoTong/Desktop/20160823_mp_result_utf8.json', cut_all = False)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Building prefix dict from the default dictionary ...\n",
+      "Loading model from cache /var/folders/lt/s10xl6lx5vn2k8_mdz5q8g080000gn/T/jieba.cache\n",
+      "Loading model cost 0.533 seconds.\n",
+      "Prefix dict has been built succesfully.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Default Mode: // Users/ // ChaoTong/ // Desktop/ // 20160823/ _/ mp/ _/ result/ _/ utf8/ ./ json\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"Default Mode: \" + \"/ \".join(seg_list))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "import jieba\n",
+    "from sklearn.feature_extraction.text import  TfidfVectorizer\n",
+    "from sklearn.cluster import KMeans"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "def jieba_tokenize(text):\n",
+    "    return jieba.lcut(text) "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "tfidf_vectorizer = TfidfVectorizer(tokenizer=jieba_tokenize, lowercase=False)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "ename": "AttributeError",
+     "evalue": "'list' object has no attribute 'decode'",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mAttributeError\u001b[0m                            Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-10-b433ba174277>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0mtfidf_matrix\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mtfidf_vectorizer\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mfit_transform\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mtext_list\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+      "\u001b[0;32m/Users/ChaoTong/anaconda/lib/python2.7/site-packages/sklearn/feature_extraction/text.pyc\u001b[0m in \u001b[0;36mfit_transform\u001b[0;34m(self, raw_documents, y)\u001b[0m\n\u001b[1;32m   1303\u001b[0m             \u001b[0mTf\u001b[0m\u001b[0;34m-\u001b[0m\u001b[0midf\u001b[0m\u001b[0;34m-\u001b[0m\u001b[0mweighted\u001b[0m \u001b[0mdocument\u001b[0m\u001b[0;34m-\u001b[0m\u001b[0mterm\u001b[0m \u001b[0mmatrix\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1304\u001b[0m         \"\"\"\n\u001b[0;32m-> 1305\u001b[0;31m         \u001b[0mX\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0msuper\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mTfidfVectorizer\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mfit_transform\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mraw_documents\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   1306\u001b[0m         \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_tfidf\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mfit\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mX\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1307\u001b[0m         \u001b[0;31m# X is already a transformed view of raw_documents so\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/Users/ChaoTong/anaconda/lib/python2.7/site-packages/sklearn/feature_extraction/text.pyc\u001b[0m in \u001b[0;36mfit_transform\u001b[0;34m(self, raw_documents, y)\u001b[0m\n\u001b[1;32m    815\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    816\u001b[0m         vocabulary, X = self._count_vocab(raw_documents,\n\u001b[0;32m--> 817\u001b[0;31m                                           self.fixed_vocabulary_)\n\u001b[0m\u001b[1;32m    818\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    819\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mbinary\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/Users/ChaoTong/anaconda/lib/python2.7/site-packages/sklearn/feature_extraction/text.pyc\u001b[0m in \u001b[0;36m_count_vocab\u001b[0;34m(self, raw_documents, fixed_vocab)\u001b[0m\n\u001b[1;32m    750\u001b[0m         \u001b[0mindptr\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mappend\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;36m0\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    751\u001b[0m         \u001b[0;32mfor\u001b[0m \u001b[0mdoc\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mraw_documents\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 752\u001b[0;31m             \u001b[0;32mfor\u001b[0m \u001b[0mfeature\u001b[0m \u001b[0;32min\u001b[0m \u001b[0manalyze\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mdoc\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    753\u001b[0m                 \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    754\u001b[0m                     \u001b[0mj_indices\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mappend\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mvocabulary\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mfeature\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/Users/ChaoTong/anaconda/lib/python2.7/site-packages/sklearn/feature_extraction/text.pyc\u001b[0m in \u001b[0;36m<lambda>\u001b[0;34m(doc)\u001b[0m\n\u001b[1;32m    236\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    237\u001b[0m             return lambda doc: self._word_ngrams(\n\u001b[0;32m--> 238\u001b[0;31m                 tokenize(preprocess(self.decode(doc))), stop_words)\n\u001b[0m\u001b[1;32m    239\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    240\u001b[0m         \u001b[0;32melse\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m<ipython-input-7-4ed631f2e1a8>\u001b[0m in \u001b[0;36mjieba_tokenize\u001b[0;34m(text)\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[0;32mdef\u001b[0m \u001b[0mjieba_tokenize\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mtext\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 2\u001b[0;31m     \u001b[0;32mreturn\u001b[0m \u001b[0mjieba\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mlcut\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mtext\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+      "\u001b[0;32m/Users/ChaoTong/anaconda/lib/python2.7/site-packages/jieba/__init__.pyc\u001b[0m in \u001b[0;36mlcut\u001b[0;34m(self, *args, **kwargs)\u001b[0m\n\u001b[1;32m    331\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    332\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0mlcut\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwargs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 333\u001b[0;31m         \u001b[0;32mreturn\u001b[0m \u001b[0mlist\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mcut\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwargs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    334\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    335\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0mlcut_for_search\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwargs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/Users/ChaoTong/anaconda/lib/python2.7/site-packages/jieba/__init__.pyc\u001b[0m in \u001b[0;36mcut\u001b[0;34m(self, sentence, cut_all, HMM)\u001b[0m\n\u001b[1;32m    280\u001b[0m             \u001b[0;34m-\u001b[0m \u001b[0mHMM\u001b[0m\u001b[0;34m:\u001b[0m \u001b[0mWhether\u001b[0m \u001b[0mto\u001b[0m \u001b[0muse\u001b[0m \u001b[0mthe\u001b[0m \u001b[0mHidden\u001b[0m \u001b[0mMarkov\u001b[0m \u001b[0mModel\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    281\u001b[0m         '''\n\u001b[0;32m--> 282\u001b[0;31m         \u001b[0msentence\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mstrdecode\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0msentence\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    283\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    284\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mcut_all\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/Users/ChaoTong/anaconda/lib/python2.7/site-packages/jieba/_compat.pyc\u001b[0m in \u001b[0;36mstrdecode\u001b[0;34m(sentence)\u001b[0m\n\u001b[1;32m     35\u001b[0m     \u001b[0;32mif\u001b[0m \u001b[0;32mnot\u001b[0m \u001b[0misinstance\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0msentence\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtext_type\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     36\u001b[0m         \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 37\u001b[0;31m             \u001b[0msentence\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0msentence\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mdecode\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'utf-8'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     38\u001b[0m         \u001b[0;32mexcept\u001b[0m \u001b[0mUnicodeDecodeError\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     39\u001b[0m             \u001b[0msentence\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0msentence\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mdecode\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'gbk'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m'ignore'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;31mAttributeError\u001b[0m: 'list' object has no attribute 'decode'"
+     ]
+    }
+   ],
+   "source": [
+    "tfidf_matrix = tfidf_vectorizer.fit_transform(text_list)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "cluster = KMeans(n_clusters = 3, max_iter = 300,init='k-means++',n_jobs=-1)\n",
+    "result = cluster.fit_predict(tfidf_matrix)\n",
+    "print result"
+   ]
+  }
+ ],
+ "metadata": {
+  "anaconda-cloud": {},
+  "kernelspec": {
+   "display_name": "Python [Root]",
+   "language": "python",
+   "name": "Python [Root]"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 2
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython2",
+   "version": "2.7.11"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 0
+}
